@@ -45,10 +45,10 @@ func GetArguments() ([]string, []string, string){
 			Arguments = slices.Concat(Arguments, line)
 		}
 	}
-	Arguments = slices.Concat(Arguments, os.Args)
+	Arguments = slices.Concat(Arguments, os.Args[1:])
 	//get arguments
 	var IsNum bool
-	for i := 1; i < len(Arguments); i++ {
+	for i := 0; i < len(Arguments); i++ {
 		IsNum = true
 		for j:=0;j<len(Arguments[i]);j++{
 			if !strings.Contains("0123456789", string(Arguments[i][j])){
