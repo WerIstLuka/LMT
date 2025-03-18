@@ -23,7 +23,8 @@ Options:
 	div
 	pow
 	sqrt
-	abs`)
+	abs
+	rnd`)
 	os.Exit(0)
 }
 
@@ -51,7 +52,7 @@ func GetArguments() ([]string, []string, string){
 	for i := 0; i < len(Arguments); i++ {
 		IsNum = true
 		for j:=0;j<len(Arguments[i]);j++{
-			if !strings.Contains("0123456789", string(Arguments[i][j])){
+			if !strings.Contains("0123456789.", string(Arguments[i][j])){
 				IsNum = false
 			}
 		}
@@ -67,15 +68,19 @@ func GetArguments() ([]string, []string, string){
 	return Options, Numbers, os.Args[0]
 }
 
-func add(Options []string, Numbers []*big.Int){
-	Result := new(big.Int)
+func add(Options []string, Numbers []*big.Float){
+	for i:=0;i<len(Options);i++{
+		fmt.Println("Error: Unknown Option:", Options[i])
+		os.Exit(1)
+	}
+	Result := new(big.Float)
 	for i:=0;i<len(Numbers);i++{
 		Result.Add(Result, Numbers[i])
 	}
-	fmt.Println(Result)
+	fmt.Println(Result.Text('f', -1))
 }
 
-func Parser(Options []string, Numbers []*big.Int, ExecName string){
+func Parser(Options []string, Numbers []*big.Float, ExecName string){
 	var GotOperation bool
 	var Operation string
 	var Remove int = -1
@@ -85,6 +90,13 @@ func Parser(Options []string, Numbers []*big.Int, ExecName string){
 		GotOperation = true
 	}
 	for i:=0;i<len(Options);i++{
+		if Options[i] == "-h" || Options[i] == "--help"{
+			Help()
+		}
+		if Options[i] == "-v"|| Options[i] == "--version"{
+			fmt.Println(Version)
+			os.Exit(0)
+		}
 		if slices.Contains([]string{"add", "sub", "mul", "div", "sqrt", "abs", "pow"}, Options[i]){
 			if GotOperation{
 				fmt.Println("Error: Operation given twice")
@@ -98,16 +110,23 @@ func Parser(Options []string, Numbers []*big.Int, ExecName string){
 	if Remove != -1{
 		Options = append(Options[:Remove], Options[Remove+1:]...)
 	}
+	if !GotOperation{
+		fmt.Println("Error: No operation")
+		os.Exit(1)
+	}
+	if len(Numbers) == 0{
+		os.Exit(0)
+	}
 	if Operation == "add" || ExecName == "addl"{
 		add(Options, Numbers)
 	}
 }
 
-func ConvertNumbers(Numbers []string) ([]*big.Int){
-	var ConvertedNumbers []*big.Int
+func ConvertNumbers(Numbers []string) ([]*big.Float){
+	var ConvertedNumbers []*big.Float
 	for i:=0;i<len(Numbers);i++{
-		var BigNum big.Int
-		Num, _ := BigNum.SetString(Numbers[i], 10)
+		var BigNum big.Float
+		Num, _ := BigNum.SetString(Numbers[i])
 		ConvertedNumbers = append(ConvertedNumbers, Num)
 	}
 	return ConvertedNumbers
